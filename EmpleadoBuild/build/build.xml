@@ -1,0 +1,140 @@
+<project name="EmpleadoApp Build Script" default="all" basedir=".">
+	
+	<property name="home_dir" value="${basedir}/../.."/>
+	<property name="lib_dir" value="${basedir}/../lib"/>
+	<property name="artifact_dir" value="${ARCHIVE_DIR}"/>
+
+	<target name="all" depends="compile, package, deploy">
+		<echo message="Build ${buildDefinitionId} completed." />
+	</target>
+	
+	<target name="compile">
+		<!-- Update the build progress in Jazz by starting a new build activity. -->
+		<!--
+		<startBuildActivity activityIdProperty="compileActivityId"
+			parentActivityId="${empleadoActivityId}"
+			label="Compiling..."
+			buildResultUUID="${buildResultUUID}"
+			repositoryAddress="${repositoryAddress}"
+			userId="${userId}"
+			passwordFile="${password}" />
+		-->
+		
+		<mkdir dir="${home_dir}/EmpleadoJPA/bin" />
+		<mkdir dir="${home_dir}/EmpleadoEJB/bin" />
+		<mkdir dir="${home_dir}/EmpleadoWeb/WebContent/WEB-INF/classes" />
+		<mkdir dir="${home_dir}/EmpleadoJUnit/bin" />
+
+		<javac srcdir="${home_dir}/EmpleadoJPA/src" destdir="${home_dir}/EmpleadoJPA/bin" source="1.5" target="1.5">
+			<classpath>
+				<pathelement path="${lib_dir}/com.ibm.ws.javaee.persistence.2.0_1.0.2.jar" />
+			</classpath>
+		</javac>
+
+		<javac srcdir="${home_dir}/EmpleadoEJB/ejbModule" destdir="${home_dir}/EmpleadoEJB/bin" source="1.5" target="1.5">
+			<classpath>
+				<pathelement path="${home_dir}/EmpleadoJPA/bin" />
+				<pathelement path="${lib_dir}/com.ibm.ws.javaee.persistence.2.0_1.0.2.jar" />
+				<pathelement path="${lib_dir}/com.ibm.ws.javaee.ejb.3.1_1.0.0.jar" />
+				<pathelement path="${lib_dir}/com.ibm.websphere.appserver.api.json_1.0.1.jar" />
+				<pathelement path="${lib_dir}/postgresql-9.3-1102.jdbc4.jar" />
+			</classpath>
+		</javac>
+		<copydir src="${home_dir}/EmpleadoEJB/ejbModule" dest="${home_dir}/EmpleadoEJB/bin" includes="**/*.csv" />
+
+		<javac srcdir="${home_dir}/EmpleadoWeb/src" destdir="${home_dir}/EmpleadoWeb/WebContent/WEB-INF/classes" source="1.5" target="1.5">
+			<classpath>
+				<pathelement path="${home_dir}/EmpleadoJPA/bin" />
+				<pathelement path="${home_dir}/EmpleadoEJB/bin" />
+				<pathelement path="${lib_dir}/com.ibm.ws.javaee.servlet.3.0_1.0.1.jar" />
+				<pathelement path="${lib_dir}/com.ibm.ws.javaee.ejb.3.1_1.0.0.jar" />
+			</classpath>
+		</javac>
+
+		<!-- Complete the compile build activity. -->
+		<!--
+		<completeBuildActivity activityId="${compileActivityId}"
+			buildResultUUID="${buildResultUUID}"
+			repositoryAddress="${repositoryAddress}"
+			userId="${userId}"
+			passwordFile="${password}"  />	
+		-->
+	</target>
+
+	<target name="package">
+		<!-- Update the build progress in Jazz by starting a new build activity. -->
+		<!--
+		<startBuildActivity activityIdProperty="packageActivityId"
+			parentActivityId="${empleadoActivityId}"
+			label="Packaging..."
+			buildResultUUID="${buildResultUUID}"
+			repositoryAddress="${repositoryAddress}"
+			userId="${userId}"
+			passwordFile="${password}" />
+		-->
+
+		<mkdir dir="lib" />
+		<jar destfile="lib/EmpleadoJPA.jar" manifest="${home_dir}/EmpleadoJPA/src/META-INF/MANIFEST.MF">
+			<fileset dir="${home_dir}/EmpleadoJPA/bin" includes="**" />
+			<fileset dir="${home_dir}/EmpleadoJPA/src" includes="META-INF/persistence.xml" />
+		</jar>
+
+		<jar destfile="EmpleadoEJB.jar" manifest="${home_dir}/EmpleadoEJB/ejbModule/META-INF/MANIFEST.MF">
+			<fileset dir="${home_dir}/EmpleadoEJB/bin" includes="**" />
+		</jar>
+
+		<war destfile="EmpleadoWeb.war" manifest="${home_dir}/EmpleadoWeb/WebContent/META-INF/MANIFEST.MF" needxmlfile="false">
+			<fileset dir="${home_dir}/EmpleadoWeb/WebContent" includes="WEB-INF/classes/**" />
+			<fileset dir="${home_dir}/EmpleadoWeb/WebContent" includes="imagenes/**" />
+			<fileset dir="${home_dir}/EmpleadoWeb/WebContent" includes="*.html" />
+			<fileset dir="${home_dir}/EmpleadoWeb/WebContent" includes="*.jsp" />
+		</war>
+
+		<copy todir="lib">
+			<fileset file="${lib_dir}/postgresql-9.3-1102.jdbc4.jar" />
+		</copy>
+		<jar destfile="EmpleadoEAR.ear" basedir="${basedir}">
+			<include name="lib/EmpleadoJPA.jar" />
+			<include name="lib/postgresql-9.3-1102.jdbc4.jar" />
+			<include name="EmpleadoEJB.jar" />
+			<include name="EmpleadoWeb.war" />
+			<metainf file="${home_dir}/EmpleadoEAR/EarContent/META-INF/application.xml" />
+		</jar>
+		
+		<!-- Complete the package build activity. -->
+		<!--
+		<completeBuildActivity activityId="${packageActivityId}"
+			buildResultUUID="${buildResultUUID}"
+			repositoryAddress="${repositoryAddress}"
+			userId="${userId}"
+			passwordFile="${password}"  />
+		-->
+	</target>
+				
+	<target name="deploy">
+		<!-- Update the build progress in Jazz by starting a new build activity. -->
+		<!--
+		<startBuildActivity activityIdProperty="deployActivityId"
+			parentActivityId="${empleadoActivityId}"
+			label="Deploying..."
+			buildResultUUID="${buildResultUUID}"
+			repositoryAddress="${repositoryAddress}"
+			userId="${userId}"
+			passwordFile="${password}" />
+		-->
+			
+		<copy todir="${artifact_dir}">
+			<fileset file="../manifest.yml" />
+			<fileset file="EmpleadoEAR.ear" />
+	    </copy>
+
+		<!-- Complete the deploy build activity. -->
+		<!--
+		<completeBuildActivity activityId="${deployActivityId}"
+			buildResultUUID="${buildResultUUID}"
+			repositoryAddress="${repositoryAddress}"
+			userId="${userId}"
+			passwordFile="${password}"  />
+		-->	
+	</target>
+</project>

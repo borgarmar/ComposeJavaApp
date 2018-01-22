@@ -1,0 +1,6 @@
+applications:
+- name: EmpleadoAppmaria
+  memory: 512M
+  host: EmpleadoAppmaria
+  domain: eu-gb.mybluemix.net
+  path: EmpleadoEAR.ear

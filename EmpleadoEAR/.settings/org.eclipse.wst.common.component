@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="EmpleadoEAR">
+        <wb-resource deploy-path="/" source-path="/EarContent" tag="defaultRootSource"/>
+        <dependent-module archiveName="EmpleadoJPA.jar" deploy-path="/lib" handle="module:/resource/EmpleadoJPA/EmpleadoJPA">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="EmpleadoEJB.jar" deploy-path="/" handle="module:/resource/EmpleadoEJB/EmpleadoEJB">
+            <dependent-object>Module_1406667166179</dependent-object>
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="EmpleadoWeb.war" deploy-path="/" handle="module:/resource/EmpleadoWeb/EmpleadoWeb">
+            <dependent-object>Module_1406667166180</dependent-object>
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="postgresql-9.3-1102.jdbc4.jar" deploy-path="/lib" handle="module:/classpath/lib/EmpleadoBuild/lib/postgresql-9.3-1102.jdbc4.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+    </wb-module>
+</project-modules>
